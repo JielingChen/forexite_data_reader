@@ -385,7 +385,6 @@ def forexite():
     # get user inputs from the configure() function
     ticker_option, tickers, frequency, start, end = configure()
     
-    
     # calling functions
     if frequency == 'd':
         if ticker_option == 'a':
@@ -409,6 +408,7 @@ def forexite():
             tickers = list(tickers)
             forex_monthly(ticker_option, tickers, start, end)
 
+            
 # %%
 # run the function
 forexite()
