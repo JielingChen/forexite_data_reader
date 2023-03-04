@@ -111,18 +111,18 @@ def configure():
     # define a list of valid frequency options
     valid_frequency_options = ['d', 'm']
     while True:
-        frequency = input('Enter "d" for daily data or "m" for monthly data: ')
+        frequency = input('Enter "d" for daily data or "m" for month-end data: ')
         
         if frequency in valid_frequency_options:
             if frequency == 'd':
                 print('Getting daily data...')
             
             elif frequency == 'm':
-                print('Getting monthly data...')
+                print('Getting month-end data...')
 
             break
         
-        print('Invalid option. Please enter "d" for daily data, "m" for monthly data: ')
+        print('Invalid option. Please enter "d" for daily data, "m" for month-end data: ')
     
     
     
