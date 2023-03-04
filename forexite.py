@@ -73,7 +73,7 @@ def configure():
                 
             break
         
-        print('Invalid option. Please enter "a" to retrieve all currency pairs or "s" to specifiy tickers: ')
+        print('Invalid option. Please enter "a" to retrieve all currency pairs or "s" to specifiy tickers or "u" to upload a ticker list: ')
     
     
     
