@@ -15,7 +15,7 @@ import pandas as pd
 import numpy as np
 
 # %%
-# we can get zip file from url like this: https://www.forexite.com/free_forex_quotes/2021/03/010321.zip
+# we can get zip file from url in this format: https://www.forexite.com/free_forex_quotes/2021/03/010321.zip
 
 # a function to construct url 
 def get_url(date):
