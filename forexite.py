@@ -15,9 +15,14 @@ import pandas as pd
 import numpy as np
 
 # %%
-# we can get zip file from url in this format: https://www.forexite.com/free_forex_quotes/2021/03/010321.zip
+# we can get the raw data for a given day from URL in this format: https://www.forexite.com/free_forex_quotes/YYYY/MM/DDMMYY.zip
+# for example: https://www.forexite.com/free_forex_quotes/2021/03/010321.zip
+# we can only get daily data from the website
+# and the raw data we get from the URL contains the closing prices for every minute of the day for all currency pairs
+# but we are only interested in the closing prices at the end of the day
 
-# a function to construct url 
+
+# a function to construct url: https://www.forexite.com/free_forex_quotes/YYYY/MM/DDMMYY.zip
 def get_url(date):
 
     # construct url
