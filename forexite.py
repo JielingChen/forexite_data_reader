@@ -79,7 +79,7 @@ def configure():
                 print('Getting all currency pairs... Please note that getting all pairs may result in missing values on non-trading days.')
                 
             elif ticker_option == 'u':
-                print('Please put your tickers in an excel or csv file with no header and then enter the file path.')
+                print('Please put your tickers in an excel or csv file as a column with no header and then enter the file path.')
                 file_path = input('Enter the file path: ')
                 file_path = file_path.replace('\\', '/')
                 print(f'Reading tickers from "{file_path}"')
