@@ -1,24 +1,3 @@
-# %%
-
-# introduction
-
-# we want to retrieve historical exchange rates from this broker's website: https://www.forexite.com/traderoom/
-
-# we can get the raw data for a given day from an URL in this format: https://www.forexite.com/free_forex_quotes/YYYY/MM/DDMMYY.zip
-
-# for example: https://www.forexite.com/free_forex_quotes/2023/03/020323.zip
-
-# the raw data contains the closing prices for every minute of the day for all currency pairs
-
-# but we are only interested in the closing prices at the end of the day, and
-
-# we can only get data for a specific day from the website instead of a range of dates or a specific frequency
-
-# this script will allow the user to specify the tickers, time period, and frequency of the data
-
-# all the data retrieval and manipulation will be automatically done by this script
-
-# at the end, this script will generate an Excel file to store the cleaned data
 
 # %%
 # import datetime and dateutil to manipulate dates value
