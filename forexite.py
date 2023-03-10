@@ -1,4 +1,22 @@
 # %%
+
+# introduction
+
+# we want to retrieve historical exchange rates from this broker's website: https://www.forexite.com/traderoom/
+
+# we can get the raw data for a given day from an URL in this format: https://www.forexite.com/free_forex_quotes/YYYY/MM/DDMMYY.zip
+
+# for example: https://www.forexite.com/free_forex_quotes/2023/03/020323.zip
+
+# the raw data contains the closing prices for every minute of the day for all currency pairs, but we are only interested in the closing prices at the end of the day, and
+
+# we can only get data for a specific day from the website instead of a range of dates or a specific frequency
+
+# this script will allow the user to specify the tickers, time period, and frequency of the data
+
+# all the data retrieval and manipulation will be automatically done by this script, and at the end, this script will generate an Excel file to store the cleaned data
+
+# %%
 # import datetime and dateutil to manipulate dates value
 import datetime as dt
 from dateutil.relativedelta import relativedelta
@@ -15,14 +33,7 @@ import pandas as pd
 import numpy as np
 
 # %%
-# we can get the raw data for a given day from URL in this format: https://www.forexite.com/free_forex_quotes/YYYY/MM/DDMMYY.zip
-# for example: https://www.forexite.com/free_forex_quotes/2021/03/010321.zip
-# we can only get daily data from the website
-# and the raw data we get from the URL contains the closing prices for every minute of the day for all currency pairs
-# but we are only interested in the closing prices at the end of the day
-
-
-# a function to construct url: https://www.forexite.com/free_forex_quotes/YYYY/MM/DDMMYY.zip
+# define a function to construct the url for a given date
 def get_url(date):
 
     # construct url
@@ -31,13 +42,13 @@ def get_url(date):
     return url
 
 # %%
-# a function to construct a dataframe from zip file
+# define a function to construct a dataframe from zip file
 def get_df(url):
     
     # get zip file from url
     with requests.get(url) as response:
         
-        # use BytesIO to avoid writing zip file to disk
+        # use BytesIO to avoid writing zip file to computer disk
         with zipfile.ZipFile(BytesIO(response.content)) as zip_file:
             
             # get the name of the file in the zip archive 
@@ -54,10 +65,10 @@ def get_df(url):
     return df
 
 # %%
-# a function to get inputs from user
+# define a function to get inputs from user
 def configure():
 
-    # define a list of valid ticker options
+    # get ticker option from user
     valid_ticker_options = ['a', 's', 'u']
     while True:
         ticker_option = input('Enter "a" to retrieve all currency pairs or "s" to specifiy tickers or "u" to upload a ticker list: ' )
@@ -81,7 +92,7 @@ def configure():
         print('Invalid option. Please enter "a" to retrieve all currency pairs or "s" to specifiy tickers or "u" to upload a ticker list: ')
     
     
-    
+    # get tickers from user
     if ticker_option == 's':
         tickers = []
         while True:
@@ -112,8 +123,7 @@ def configure():
         tickers = None
     
     
-    
-    # define a list of valid frequency options
+    # get frequency option from user
     valid_frequency_options = ['d', 'm']
     while True:
         frequency = input('Enter "d" for daily data or "m" for month-end data: ')
@@ -130,7 +140,7 @@ def configure():
         print('Invalid option. Please enter "d" for daily data, "m" for month-end data: ')
     
     
-    
+    # get start and end date from user
     if frequency == 'd':
         while True:
             while True:
@@ -154,7 +164,6 @@ def configure():
            
             print('End date cannot be earlier than start date. Please enter start date and end date again.')
             
-
     elif frequency == 'm':
         while True:
             
@@ -185,6 +194,8 @@ def configure():
 # %%
 def forex_monthly(ticker_option, tickers, start, end):
     
+    '''This function takes in tickers, start date, and end date, and generates an Excel file with month-end data for each ticker.'''
+    
     ticker_option = ticker_option
     tickers = tickers
     
@@ -204,7 +215,7 @@ def forex_monthly(ticker_option, tickers, start, end):
         # print the message
         print(f'Processing: {last_day}')
         
-        # get url of last day
+        # get url of the last day
         url = get_url(last_day)
         
         # get dataframe of the last day
@@ -218,7 +229,7 @@ def forex_monthly(ticker_option, tickers, start, end):
             # use monthly_close_all as final output without handling missing values on non-trading days 
             df_list.append(monthly_close_all)
         
-        # if user specified currency pairs or upload a list of tickers
+        # if user specified currency pairs or uploaded a list of tickers
         else:
             # loop over each ticker
             for ticker in tickers:
@@ -255,6 +266,7 @@ def forex_monthly(ticker_option, tickers, start, end):
                     # if the previous 5 days have no data, then try the following 5 days
                     if previous_tries == 5:
                         while ticker_monthly_close.empty:
+                            # print the message
                             print(f'{ticker} on {date} is empty')
                             
                             # update counter
@@ -281,7 +293,7 @@ def forex_monthly(ticker_option, tickers, start, end):
                     if following_tries == 5:
                             break                             
                 
-                # add null values to empyty currency pair
+                # if the dataframe is still empty, then append a row with NaN
                 if ticker_monthly_close.empty:
                     ticker_monthly_close = pd.concat([ticker_monthly_close, pd.DataFrame([[ticker, np.datetime64(last_day), np.nan]], columns=ticker_monthly_close.columns)])
                 
@@ -291,7 +303,7 @@ def forex_monthly(ticker_option, tickers, start, end):
         # move to the next month
         start_date = start_date + relativedelta(months=1)
         
-    # concate all dataframes in the list
+    # concatenate all dataframes in the list
     df = pd.concat(df_list, ignore_index=True)
     
     # sort the dataframe by tickers and dates
@@ -306,6 +318,8 @@ def forex_monthly(ticker_option, tickers, start, end):
 
 # %%
 def forex_daily(ticker_option, tickers, start, end):
+    
+    '''This function takes in tickers, start date, and end date, and generates an Excel file with daily data for each ticker.'''
     
     ticker_option = ticker_option
     tickers = tickers
@@ -374,7 +388,7 @@ def forex_daily(ticker_option, tickers, start, end):
     
     # filter out the days used for interpolation
     df = df.loc[(df['Date']>=np.datetime64(start_date)) & (df['Date']<=np.datetime64(end_date))]
-    
+
     # sort the df by tickers and dates
     df = df.sort_values(by=['Ticker', 'Date'])
 
@@ -387,6 +401,9 @@ def forex_daily(ticker_option, tickers, start, end):
 
 # %%
 def forexite():
+    
+    '''This function is the main function that calls other functions.'''
+    
     # get user inputs from the configure() function
     ticker_option, tickers, frequency, start, end = configure()
     
@@ -415,6 +432,5 @@ def forexite():
 
             
 # %%
-# run the function
+# run the main function
 forexite()
-
