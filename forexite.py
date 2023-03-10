@@ -8,7 +8,9 @@
 
 # for example: https://www.forexite.com/free_forex_quotes/2023/03/020323.zip
 
-# the raw data contains the closing prices for every minute of the day for all currency pairs, but we are only interested in the closing prices at the end of the day, and
+# the raw data contains the closing prices for every minute of the day for all currency pairs
+
+# but we are only interested in the closing prices at the end of the day, and
 
 # we can only get data for a specific day from the website instead of a range of dates or a specific frequency
 
