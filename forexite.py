@@ -16,7 +16,9 @@
 
 # this script will allow the user to specify the tickers, time period, and frequency of the data
 
-# all the data retrieval and manipulation will be automatically done by this script, and at the end, this script will generate an Excel file to store the cleaned data
+# all the data retrieval and manipulation will be automatically done by this script
+
+# at the end, this script will generate an Excel file to store the cleaned data
 
 # %%
 # import datetime and dateutil to manipulate dates value
