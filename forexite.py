@@ -52,31 +52,39 @@ def get_df(url):
 def configure():
 
     # get ticker option from user
-    valid_ticker_options = ['a', 's', 'u']
+    valid_ticker_options = ['all', 'type', 'upload']
     while True:
-        ticker_option = input('Enter "a" to retrieve all currency pairs or "s" to specifiy tickers or "u" to upload a ticker list: ' )
-    
+        ticker_option = input('Enter "all" to retrieve all currency pairs or "type" to type in tickers or "upload" to upload a list of tickers: ' )
+        print(f'Ticker option: {ticker_option}')
+        
         if ticker_option in valid_ticker_options:
             
-            if ticker_option == 'a':
+            if ticker_option == 'all':
                 print('Getting all currency pairs... Please note that getting all pairs may result in missing values on non-trading days.')
                 
-            elif ticker_option == 'u':
-                print('Please put your tickers in an excel or csv file as a column with no header and then enter the file path.')
-                file_path = input('Enter the file path: ')
-                file_path = file_path.replace('\\', '/')
-                print(f'Reading tickers from "{file_path}"')
-                
-            elif ticker_option == 's':
-                print('Please specify the tickers.')
-                
+            elif ticker_option == 'type':
+                print('Please type in the tickers.')
+            
+            elif ticker_option == 'upload':
+                print('Please put your tickers in an excel or csv file with no header and then enter the file path.')
+                # check if file type is valid
+                valid_extensions = ['.xlsx', '.csv', '.txt']
+                while True:
+                    file_path = input('Enter the file path: ')
+                    print(f'Reading tickers from {file_path}')
+                    file_path = file_path.replace('\\', '/')
+                    if file_path.endswith(tuple(valid_extensions)):
+                        break
+                    else:
+                        print('Invalid file type. Please upload an excel or csv file.')
+                        
             break
         
-        print('Invalid option. Please enter "a" to retrieve all currency pairs or "s" to specifiy tickers or "u" to upload a ticker list: ')
+        print('Enter "all" to retrieve all currency pairs or "type" to type in tickers or "upload" to upload a list of tickers: ')
     
     
     # get tickers from user
-    if ticker_option == 's':
+    if ticker_option == 'type':
         tickers = []
         while True:
             ticker = input('Enter ticker (e.g. EURUSD) or "done" to exit: ')
@@ -85,24 +93,30 @@ def configure():
                 break
             tickers.append(ticker)
     
-    elif ticker_option == 'u':
+    
+    elif ticker_option == 'upload':
+        # check if file is valid
         while True:
-            if file_path.endswith('.xlsx'):
-                df = pd.read_excel(file_path, header=None)
-                break
-            elif file_path.endswith('.csv'):
-                df = pd.read_csv(file_path, header=None)
-                break
-            elif file_path.endswith('.txt'):
-                df = pd.read_csv(file_path, sep=',', header=None)
+            try:
+                if file_path.endswith('.xlsx'):
+                    df = pd.read_excel(file_path, header=None)
+                elif file_path.endswith('.csv'):
+                    df = pd.read_csv(file_path, header=None)
+                elif file_path.endswith('.txt'):
+                    df = pd.read_csv(file_path, sep=',', header=None)
                 break
             
-            print('Invalid file type. Please upload an excel or csv file.')
-            file_path = input('Enter the file path: ')
-            
+            except:
+                print('Error reading file. Please check the file.')
+                file_path = input('Enter the file path: ')
+        
+        # get ticker list from file  
         tickers = df.iloc[:, 0].tolist()
+        print(f'Tickers uploaded: ')
+        print(tickers)
+    
             
-    elif ticker_option == 'a':
+    elif ticker_option == 'all':
         tickers = None
     
     
@@ -126,50 +140,60 @@ def configure():
     # get start and end date from user
     if frequency == 'd':
         while True:
-            while True:
-                start = input('Enter start date (e.g. 2022-1-1): ')
-                if dt.datetime.strptime(start, '%Y-%m-%d') >= dt.datetime.today():
+            start = input('Enter start date (e.g. 2022-1-1): ')
+            print(f'Start date: {start}')
+            try:
+                start_date = dt.datetime.strptime(start, '%Y-%m-%d').date()
+                if start_date >= dt.datetime.today():
                     print('Start date cannot be today or later than today. Please enter a valid start date.')
                 else: 
-                    print(f'Start date: {start}')
                     break
+            except:
+                print('Invalid date format. Please enter a valid start date.')
         
-            while True:
-                end = input('Enter end date (e.g. 2022-1-31): ')
-                if dt.datetime.strptime(end, '%Y-%m-%d') >= dt.datetime.today():
+        while True:
+            end = input('Enter end date (e.g. 2022-1-31): ')
+            print(f'End date: {end}')
+            try:
+                end_date = dt.datetime.strptime(end, '%Y-%m-%d').date()
+                if end_date >= dt.datetime.today():
                     print('End date cannot be today or later than today. Please enter a valid end date.')
+                elif end_date < start_date:
+                    print('End date cannot be earlier than start date. Please enter a valid end date.')
                 else:
-                    print(f'End date: {end}')
                     break
+            except:
+                print('Invalid date format. Please enter a valid end date.')
             
-            if dt.datetime.strptime(start, '%Y-%m-%d') <= dt.datetime.strptime(end, '%Y-%m-%d'):
-                break
-           
-            print('End date cannot be earlier than start date. Please enter start date and end date again.')
             
     elif frequency == 'm':
         while True:
-            
-            while True:
-                start = input('Enter start year and month (e.g. 2022-1): ')
-                if dt.datetime.strptime(start, '%Y-%m').replace(day=1) + relativedelta(months=1, days=-1) >= dt.datetime.today():
+            start = input('Enter start year and month (e.g. 2022-1): ')
+            print(f'Start date: {start}')
+            try:
+                # get the last day of the month
+                start_date = dt.datetime.strptime(start, '%Y-%m').replace(day=1) + relativedelta(months=1, days=-1)
+                if start_date >= dt.datetime.today():
                     print('Start month cannot be this month or later than this month. Please enter a valid start date.')
                 else:
-                    print(f'Start date: {start}')
                     break
+            except:
+                print('Invalid date format. Please enter a valid start date.')
             
-            while True:
-                end = input('Enter end year and month (e.g. 2022-12): ')
-                if dt.datetime.strptime(end, '%Y-%m').replace(day=1) + relativedelta(months=1, days=-1) >= dt.datetime.today():
+        while True:
+            end = input('Enter end year and month (e.g. 2022-12): ')
+            print(f'End date: {end}')
+            try:
+                # get the last day of the month
+                end_date = dt.datetime.strptime(end, '%Y-%m').replace(day=1) + relativedelta(months=1, days=-1)
+                if end_date >= dt.datetime.today():
                     print('End month cannot be this month or later than this month. Please enter a valid end date.')
+                elif end_date < start_date:
+                    print('End month cannot be earlier than start month. Please enter a valid end date.')
                 else:
-                    print(f'End date: {end}')
                     break
-            
-            if dt.datetime.strptime(start, '%Y-%m') <= dt.datetime.strptime(end, '%Y-%m'):
-                break
-            
-            print('End date cannot be earlier than start date. Please enter start date and end date again.')
+            except:
+                print('Invalid date format. Please enter a valid end date.')
     
     
     return ticker_option, tickers, frequency, start, end
@@ -178,9 +202,6 @@ def configure():
 def forex_monthly(ticker_option, tickers, start, end):
     
     '''This function takes in tickers, start date, and end date, and generates an Excel file with month-end data for each ticker.'''
-    
-    ticker_option = ticker_option
-    tickers = tickers
     
     # transform input values into date object
     start_date = dt.datetime.strptime(start, '%Y-%m').replace(day=1).date()
@@ -304,9 +325,6 @@ def forex_daily(ticker_option, tickers, start, end):
     
     '''This function takes in tickers, start date, and end date, and generates an Excel file with daily data for each ticker.'''
     
-    ticker_option = ticker_option
-    tickers = tickers
-        
     # define start_date
     start_date = dt.datetime.strptime(start, "%Y-%m-%d").date()
     
