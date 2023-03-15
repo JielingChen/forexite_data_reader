@@ -11,4 +11,4 @@ The raw data downloaded from this URL contains the closing prices for every minu
 
 This script will allow the user to specify the tickers, time period, and frequency of the data. All the data retrieval and manipulation will be done automatically by this script. At the end, this script will generate an Excel file to store the cleaned data.
 
-The libraries used in this script include: requests, pandas, datetime, dateutil.
+The libraries used in this script include: requests, pandas, dateutil.
